@@ -24,7 +24,6 @@ interface Task {
     title: string;
     description: string | null;
     status: 'pending' | 'in_progress' | 'completed';
-    priority: 'low' | 'medium' | 'high';
     due_date: string | null;
     created_at: string;
     updated_at: string;
@@ -47,27 +46,12 @@ const getStatusColor = (status: string) => {
     }
 };
 
-const getPriorityColor = (priority: string) => {
-    switch (priority) {
-        case 'high':
-            return 'bg-red-100 text-red-800';
-        case 'medium':
-            return 'bg-orange-100 text-orange-800';
-        case 'low':
-            return 'bg-blue-100 text-blue-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
-    }
-};
-
 export default function TasksIndex({ tasks }: Props) {
     const [statusFilter, setStatusFilter] = useState<string>('all');
-    const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
     const filteredTasks = tasks.filter(task => {
         const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-        const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
-        return matchesStatus && matchesPriority;
+        return matchesStatus;
     });
 
     const handleDelete = (id: number) => {
@@ -106,18 +90,6 @@ export default function TasksIndex({ tasks }: Props) {
                                 <SelectItem value="completed">Completed</SelectItem>
                             </SelectContent>
                         </Select>
-
-                        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                            <SelectTrigger className="w-48">
-                                <SelectValue placeholder="Filter by priority" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Priority</SelectItem>
-                                <SelectItem value="low">Low</SelectItem>
-                                <SelectItem value="medium">Medium</SelectItem>
-                                <SelectItem value="high">High</SelectItem>
-                            </SelectContent>
-                        </Select>
                     </div>
 
                     {/* Tasks Grid */}
@@ -141,9 +113,6 @@ export default function TasksIndex({ tasks }: Props) {
                                         <div className="flex justify-between items-start">
                                             <CardTitle className="text-lg">{task.title}</CardTitle>
                                             <div className="flex gap-2">
-                                                <Badge className={getPriorityColor(task.priority)}>
-                                                    {task.priority}
-                                                </Badge>
                                                 <Badge className={getStatusColor(task.status)}>
                                                     {task.status.replace('_', ' ')}
                                                 </Badge>
