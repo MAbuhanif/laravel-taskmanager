@@ -1,8 +1,11 @@
+import { CardContent } from '@/components/ui/card';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { CheckSquare, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,22 +18,26 @@ export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+            <CardContent>
+                <div className="text-2xl font-bold">Organize Your Work</div>
+                <p className="text-xs text-muted-foreground">
+                    Manage your tasks efficiently
+                </p>
+                <div className="mt-4 space-y-2">
+                    <Link href="/tasks">
+                        <Button className="w-full">
+                            <CheckSquare className="mr-2 h-4 w-4" />
+                            View Tasks
+                        </Button>
+                    </Link>
+                    <Link href="/tasks/create">
+                        <Button variant="outline" className="w-full">
+                            <Plus className="mr-2 h-4 w-4" />
+                            New Task
+                        </Button>
+                    </Link>
                 </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
-            </div>
+            </CardContent>
         </AppLayout>
     );
 }
