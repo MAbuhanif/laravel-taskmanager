@@ -54,6 +54,12 @@ class TaskSeeder extends Seeder
             'status' => 'in_progress',
             'due_date' => now()->addDays(3),
         ],
+        [
+            'title' => 'Research new technologies',
+            'description' => 'Explore and document new technologies that could benefit the project.',
+            'status' => 'pending',
+            'due_date' => now()->addDays(15),
+        ],
 
     ];
         foreach ($tasks as $task) {

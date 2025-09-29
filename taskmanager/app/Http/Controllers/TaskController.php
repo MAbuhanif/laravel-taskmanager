@@ -14,14 +14,23 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         /** @var User $user */
         $user = Auth::user();
-        $tasks = $user->tasks()->latest()->get();
+        
+        $query = $user->tasks()->latest();
+        
+        // Filter by status if provided
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        
+        $tasks = $query->paginate(6)->withQueryString();
         
         return Inertia::render('Tasks/Index', [
-            'tasks' => $tasks
+            'tasks' => $tasks,
+            'filters' => $request->only(['status'])
         ]);
     }
 

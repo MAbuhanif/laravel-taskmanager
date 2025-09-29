@@ -17,6 +17,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Pagination } from '@/components/ui/pagination';
 import { Trash2, Edit, Plus, Eye } from 'lucide-react';
 
 interface Task {
@@ -29,8 +30,26 @@ interface Task {
     updated_at: string;
 }
 
+interface PaginatedTasks {
+    data: Task[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+}
+
 interface Props {
-    tasks: Task[];
+    tasks: PaginatedTasks;
+    filters: {
+        status?: string;
+    };
 }
 
 const getStatusColor = (status: string) => {
@@ -46,13 +65,16 @@ const getStatusColor = (status: string) => {
     }
 };
 
-export default function TasksIndex({ tasks }: Props) {
-    const [statusFilter, setStatusFilter] = useState<string>('all');
+export default function TasksIndex({ tasks, filters }: Props) {
+    const [statusFilter, setStatusFilter] = useState<string>(filters.status || 'all');
 
-    const filteredTasks = tasks.filter(task => {
-        const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-        return matchesStatus;
-    });
+    const handleStatusChange = (value: string) => {
+        setStatusFilter(value);
+        router.get('/tasks', { status: value === 'all' ? undefined : value }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
 
     const handleDelete = (id: number) => {
         if (confirm('Are you sure you want to delete this task?')) {
@@ -77,23 +99,32 @@ export default function TasksIndex({ tasks }: Props) {
                             </Button>
                         </Link>
                     </div>
+
                     {/* Filters */}
-                    <div className="mb-6 flex gap-4">
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-48">
-                                <SelectValue placeholder="Filter by status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Status</SelectItem>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="in_progress">In Progress</SelectItem>
-                                <SelectItem value="completed">Completed</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="mb-6">
+                        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-gray-700">Filter by status:</span>
+                                <Select value={statusFilter} onValueChange={handleStatusChange}>
+                                    <SelectTrigger className="w-40">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Tasks</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="in_progress">In Progress</SelectItem>
+                                        <SelectItem value="completed">Completed</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                Showing {tasks.from} to {tasks.to} of {tasks.total} tasks
+                            </div>
+                        </div>
                     </div>
 
                     {/* Tasks Grid */}
-                    {filteredTasks.length === 0 ? (
+                    {tasks.data.length === 0 ? (
                         <Card>
                             <CardContent className="flex flex-col items-center justify-center py-12">
                                 <p className="text-gray-500 text-lg mb-4">No tasks found</p>
@@ -107,7 +138,7 @@ export default function TasksIndex({ tasks }: Props) {
                         </Card>
                     ) : (
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {filteredTasks.map((task) => (
+                            {tasks.data.map((task: Task) => (
                                 <Card key={task.id} className="hover:shadow-lg transition-shadow">
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
@@ -158,6 +189,20 @@ export default function TasksIndex({ tasks }: Props) {
                                     </CardContent>
                                 </Card>
                             ))}
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {tasks.last_page > 1 && (
+                        <div className="mt-8">
+                            <Pagination
+                                links={tasks.links}
+                                currentPage={tasks.current_page}
+                                lastPage={tasks.last_page}
+                                from={tasks.from}
+                                to={tasks.to}
+                                total={tasks.total}
+                            />
                         </div>
                     )}
                 </div>
